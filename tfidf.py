@@ -15,6 +15,7 @@ from nltk.stem import WordNetLemmatizer
 import time
 import json
 from dbconfig import db_config
+import pickle
 
 
 def timer():
@@ -73,14 +74,11 @@ with connection.cursor() as cursor:
     cursor.execute(query)
     lemma_abstract = cursor.fetchall()
 
-print(f'select {time.time() - start}s')
-start = time.time()
 timer('select')
 
 text = [json.loads(item['lemma_list']) for item in lemma_abstract]
 ids = [item['article_id'] for item in lemma_abstract]
-print(f'text {time.time() - start}s')
-start = time.time()
+
 timer('text')
 
 #  tfidf = TfidfVectorizer(max_df=0.2,
@@ -89,12 +87,20 @@ timer('text')
                         #  token_pattern=None)
 #  vectors = tfidf.fit_transform(text)
 vectors = scipy.sparse.load_npz('lemma_vectors.npz')
-print(f'vectorize {time.time() - start}s')
+
 timer('vectorize')
 print(type(vectors), vectors.shape)
 
 #  np.save('lemma_vectors', vectors, allow_pickle=False)
-scipy.sparse.save_npz('lemma_vectors.npz', vectors)
+
+#  scipy.sparse.save_npz('lemma_vectors.npz', vectors)
+#  with open('tfidf.bin', 'wb') as f:
+    #  pickle.dump(tfidf, f)
+#  timer('dump')
+
+with open('tfidf.bin', 'rb') as f:
+    tfidf = pickle.load(f)
+timer('load')
 
 knn = NearestNeighbors(n_neighbors=5, metric='cosine')
 knn.fit(vectors)
@@ -105,10 +111,10 @@ timer('knn')
 #  print(query)
 #  query_vector = tfidf.transform([query])
 
-#  t1 = tfidf.inverse_transform(vectors[0])
-#  print(t1)
+t1 = tfidf.inverse_transform(vectors[0])
+print(t1)
 #  print(text[5])
 #  print(text[1003])
-dists, indices = knn.kneighbors(vectors[1003])
-for i in range(5):
-    print('#{} distance: {}, text:\n{} \n'.format(i, dists[0][i], text[indices[0][i]]))
+#  dists, indices = knn.kneighbors(vectors[1003])
+#  for i in range(5):
+    #  print('#{} distance: {}, text:\n{} \n'.format(i, dists[0][i], text[indices[0][i]]))

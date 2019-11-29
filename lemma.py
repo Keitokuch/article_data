@@ -48,7 +48,7 @@ with open("0.csv") as csvfile:
             if aid > 800000 and aid != 1778082:
                 break
             if row[10] != '':
-                title_list = lemmatize(row[0])
+                title_list = lemmatize(row[1])
                 abstract_list = lemmatize(row[10])
                 lemma = title_list + abstract_list
                 lemma_json = json.dumps(lemma)
@@ -64,8 +64,8 @@ with open("0.csv") as csvfile:
                         print(row[0])
             else:
                 print('empty abstract', i)
-print(i)
-
 
 connection.commit()
 connection.close()
+
+print(i)
