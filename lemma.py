@@ -42,7 +42,7 @@ with open("0.csv") as csvfile:
         VALUE (%(id)s, %(lemma)s)
         ;
         """
-        i, ii = 0, 0
+        i = 0
         for row in reader:
             aid = int(row[0])
             if aid > 800000 and aid != 1778082:
